@@ -82,7 +82,8 @@ def normalize!(normalized, candidates)
             if matched >= 11
               puts "MATCH!"
               return scanner_idx,
-                permutation.map { |x, y, z| [x + dx, y + dy, z + dz] }
+                permutation.map { |x, y, z| [x + dx, y + dy, z + dz] },
+                [dx, dy, dz]
             end
           end
         end
@@ -106,11 +107,24 @@ puts File
 
          scanners = input.map(&method(:permutations))
 
+         distances = [[0, 0, 0]]
+
          until scanners.empty?
            found, positions, deltas = normalize!(normalized, scanners)
            normalized += positions
+           distances << deltas
            scanners.delete_at(found)
          end
 
-         normalized.count
+         distances
+           .combination(2)
+           .reduce(0) { |max, (a, b)|
+             val = [
+               (a[0] - b[0]).abs,
+               (a[1] - b[1]).abs,
+               (a[2] - b[2]).abs,
+             ]
+
+             [max, val.sum].max
+           }
        }
